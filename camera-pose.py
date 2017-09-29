@@ -59,7 +59,7 @@ def load_labels(categoryID):
 	return labels
 
 if __name__ == "__main__":
-	for i in range(1,129):
+	for i in range(82,129):
 		image_set = load_images('/Users/andrew-kramer/Downloads/Cleaned/scan%s' % i, 'path%d.npy' % i)
 		print("size of image array: ", np.array(image_set).shape)
 	#labels = load_labels(1)
