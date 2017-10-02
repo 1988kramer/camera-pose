@@ -4,7 +4,7 @@
 # regresses the relative camera pose between two images using the method 
 # presented in https://arxiv.org/pdf/1702.01381.pdf
 
-import numpy
+import numpy as np
 import tensorflow
 import gzip
 import sys
@@ -18,16 +18,16 @@ from keras.layers import Conv2D, MaxPooling2D, Input, Lambda
 from keras.utils import np_utils
 from keras.datasets import mnist
 from keras import backend as K
-from data-loader import DataLoader
+from dataloader import DataLoader
 
 beta = 10
 epochs = 1
 
 def custom_objective(y_true, y_pred):
-	error = y_pred - y_true;
-	transMag = np.sqrt(error[0]^2 + error[1]^2 + error[2]^2)
-	orientMag = np.sqrt(error[3]^2 + error[4]^2 + error[5]^2 + error[6]^2)
-	return transMag + (beta * orientMag)
+	error = K.square(y_pred - y_true)
+	transMag = K.sqrt(error[0] + error[1] + error[2])
+	orientMag = K.sqrt(error[3] + error[4] + error[5] + error[6])
+	return K.mean(transMag + (beta * orientMag))
 
 def dot_product(v1, v2):
 	return sum((a*b) for a,b in zip(v1,v2))
@@ -51,22 +51,22 @@ def compute_mean_error(y_true, y_pred):
 def create_conv_branch(input_shape):
 	model = Sequential()
 	model.add(Conv2D(96, kernel_size=(11,11),
-					 stride=4, padding='valid',
+					 strides=4, padding='valid',
 					 activation='relu',
 					 input_shape=input_shape))
 	model.add(MaxPooling2D(pool_size=(2,2), strides=2))
 	model.add(Conv2D(256, kernel_size=(5,5),
-					 stride=1, padding='same',
+					 strides=1, padding='same',
 					 activation='relu'))
-	model.add(MaxPooling2D(pool_size(3,3), strides=1))
+	model.add(MaxPooling2D(pool_size=(3,3), strides=1))
 	model.add(Conv2D(384, kernel_size=(3,3),
-					 stride=1, padding='same',
+					 strides=1, padding='same',
 					 activation='relu'))
 	model.add(Conv2D(384, kernel_size=(3,3),
-					 stride=1, padding='same',
+					 strides=1, padding='same',
 					 activation='relu'))
 	model.add(Conv2D(256, kernel_size=(3,3),
-					 stride=1, padding='same',
+					 strides=1, padding='same',
 					 activation='relu'))
 	# replace with SPP if possible
 	model.add(MaxPooling2D(pool_size=(3,3), strides=2))
@@ -97,23 +97,23 @@ if __name__ == "__main__":
 	#distance = Lambda(euclidean_distance, 
 	#				  output_shape = eucl_dist_output_shape)([processed_a, processed_b])
 	regression = keras.layers.concatenate([processed_a, processed_b])
-	regression.add(Flatten()) # may not be necessary
-	regression.add(Dense(7, kernel_initializer='normal'))
-	model = Model(inputs=[branch_a, branch_b], outputs=[regression])
+	regression = Flatten()(regression) # may not be necessary
+	output = Dense(7, kernel_initializer='normal', name='output')(regression)
+	model = Model(inputs=[branch_a, branch_b], outputs=[output])
 
 	model.compile(loss=custom_objective, 
-				  optimizer=keras.optimizers.Adam(lr=.0001, decay=.00001),
-				  metrics=['accuracy'])
-
+				  optimizer=keras.optimizers.Adam(lr=.0001, decay=.00001))
+				  #metrics=['accuracy'])
+	print(train_data.shape)
 	model.fit([train_data[:,0], train_data[:,1]], train_labels,
 			  batch_size=128,
 			  epochs = epochs,
 			  validation_split=0.1,
-			  shuffle=true)
+			  shuffle=True)
 
-	pred = model.predict(train_data[:,0], train_data[:,1])
+	pred = model.predict([train_data[:,0], train_data[:,1]])
 	train_trans, train_orient = compute_accuracy(pred, train_labels)
-	pred = model.predict(test_data[:,0], test_data[:,1])
+	pred = model.predict([test_data[:,0], test_data[:,1]])
 	test_trans, test_mean = compute_accuracy(pred, test_labels)
 
 	print('* Mean translation error on training set: %0.2f%%' % (100 * train_trans))

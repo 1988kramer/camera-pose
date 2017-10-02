@@ -18,9 +18,9 @@ from keras import backend as K
 
 class DataLoader:
 
-	input_size = (227, 227)
 	num_images_1 = 49 # number of images in type 1 sets (1-77)
 	num_images_2 = 64 # number of images in type 2 sets (82-128)
+	input_shape = []
 	train_labels = []
 	test_labels = []
 	train_data = []
@@ -42,7 +42,7 @@ class DataLoader:
 				new_images = np.load("path%s.npy" % directory_num);
 			else:
 				for file in glob.glob("*max.png"): # only loads the 'max' image from each view
-					img = image.load_img(file, target_size=input_size)
+					img = image.load_img(file, target_size=(img_rows, img_cols))
 					img_array = image.img_to_array(img)
 					# do some other preprocessing here?
 					new_images.append(img_array)
@@ -55,11 +55,11 @@ class DataLoader:
 
 		#preprocess input
 		if K.image_data_format() == 'channels_first':
-			image_set = image_set.reshape(image_set.shape[0], 1, img_rows, img_cols)
-			input_shape = (1, img_rows, img_cols)
+			image_set = image_set.reshape(image_set.shape[0], 3, img_rows, img_cols)
+			self.input_shape = (3, img_rows, img_cols)
 		else:
-			image_set = image_set.reshape(image_set.shape[0], img_rows, img_cols, 1)
-			input_shape = (img_rows, img_cols, 1)
+			image_set = image_set.reshape(image_set.shape[0], img_rows, img_cols, 3)
+			self.input_shape = (img_rows, img_cols, 3)
 		image_set = image_set.astype('float32')
 		image_set /= 255
 		return image_set
@@ -103,12 +103,12 @@ class DataLoader:
 		for label in train_labels:
 			if label[2] <= 77: # currently can't category IDs above 77
 				mult = categoryIDs.index(label[2])
-				image_tuple = (images[mult * num_images_1], images[mult * num_images_1])
+				image_tuple = (images[mult * self.num_images_1], images[mult * self.num_images_1])
 				train_data.append(image_tuple)
 		for label in test_labels:
 			if label[2] <= 77: # currently can't category IDs above 77
 				mult = categoryIDs.index(label[2])
-				image_tuple = (images[mult * num_images_1], images[mult * num_images_1])
+				image_tuple = (images[mult * self.num_images_1], images[mult * self.num_images_1])
 				test_data.append(image_tuple)
 		return np.array(train_data), np.array(test_data)
 
@@ -121,21 +121,21 @@ class DataLoader:
 
 	# returns shuffled training and test data consisting of
 	# lists of image pairs with indicies [pair_num, image_num, width, height, depth]
-	def get_data():
-		return train_data, test_data
+	def get_data(self):
+		return self.train_data, self.test_data
 
 	# returns shuffled training and test labels with form:
 	# [x, y, z, q1, q2, q3, q4]
-	def get_labels():
-		return train_labels, test_labels
+	def get_labels(self):
+		return self.train_labels, self.test_labels
 
-	def get_input_shape():
-		return input_shape
+	def get_input_shape(self):
+		return self.input_shape
 
 	def __init__(self, categoryIDs, img_rows, img_cols):
-		images = load_images(categoryIDs, img_rows, img_cols)
-		labels = load_labels(categoryIDs)
-		train_labels, test_labels = organize_labels(labels)
-		train_data, test_data = organize_data(train_labels, test_labels, images, categoryIDs)
-		train_labels, test_labels = clean_labels(train_labels, test_labels)
+		images = self.__load_images(categoryIDs, img_rows, img_cols)
+		labels = self.__load_labels(categoryIDs)
+		self.train_labels, self.test_labels = self.__organize_labels(labels)
+		self.train_data, self.test_data = self.__organize_data(self.train_labels, self.test_labels, images, categoryIDs)
+		self.train_labels, self.test_labels = self.__clean_labels(self.train_labels, self.test_labels)
 		
