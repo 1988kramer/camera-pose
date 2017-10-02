@@ -25,13 +25,14 @@ class DataLoader:
 	test_labels = []
 	train_data = []
 	test_data = []
+	input_shape = []
 
 	# accepts the name of a directory and the name of a .npy file as strings
 	# loads data from the given .npy if it exists, otherwise loads data from
 	# raw images and saves it to a .npy file for future runs
 	# returns a numpy array representation of
 	# the image set in the given directiory
-	def __load_images(self, directories):
+	def __load_images(self, directories, img_rows, img_cols):
 		image_set = []
 		cwd = os.getcwd() # save current working directory
 		for directory_num in directories:
@@ -51,6 +52,16 @@ class DataLoader:
 			else:
 				image_set= np.concatenate((image_set, new_images), 0)
 		os.chdir(cwd) # switch back to previous working directory
+
+		#preprocess input
+		if K.image_data_format() == 'channels_first':
+			image_set = image_set.reshape(image_set.shape[0], 1, img_rows, img_cols)
+			input_shape = (1, img_rows, img_cols)
+		else:
+			image_set = image_set.reshape(image_set.shape[0], img_rows, img_cols, 1)
+			input_shape = (img_rows, img_cols, 1)
+		image_set = image_set.astype('float32')
+		image_set /= 255
 		return image_set
 
 	# accepts an array of categoryIDs as a parameter
@@ -118,8 +129,11 @@ class DataLoader:
 	def get_labels():
 		return train_labels, test_labels
 
-	def __init__(self, categoryIDs):
-		images = load_images(categoryIDs)
+	def get_input_shape():
+		return input_shape
+
+	def __init__(self, categoryIDs, img_rows, img_cols):
+		images = load_images(categoryIDs, img_rows, img_cols)
 		labels = load_labels(categoryIDs)
 		train_labels, test_labels = organize_labels(labels)
 		train_data, test_data = organize_data(train_labels, test_labels, images, categoryIDs)
