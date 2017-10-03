@@ -22,7 +22,7 @@ from keras import backend as K
 from dataloader import DataLoader
 
 beta = 10
-epochs = 2
+epochs = 4
 
 def custom_objective(y_true, y_pred):
 	error = K.square(y_pred - y_true)
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
 	img_rows, img_cols = 227, 227
 	category_IDs = [1,2,3,4,5] # category IDs from which to pull test and training data
-	model_name = 'midsize_model_2epoch.h5'
+	model_name = 'midsize_model_4epoch.h5'
 	model = None
 	# load training and testing data:
 	loader = DataLoader(category_IDs, img_rows, img_cols)
