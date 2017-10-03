@@ -77,7 +77,6 @@ class DataLoader:
 					nextTuple = (int(sl[0]), int(sl[1]), int(sl[2]),
 								 float(sl[3]), float(sl[4]), float(sl[5]),
 								 float(sl[6]), float(sl[7]), float(sl[8]), float(sl[9]))
-					#print(nextTuple)
 					if nextTuple[2] in categoryIDs:
 						labels.append(nextTuple);
 			f.close()

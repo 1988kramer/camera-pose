@@ -20,9 +20,10 @@ from keras.utils import np_utils
 from keras.datasets import mnist
 from keras import backend as K
 from dataloader import DataLoader
+from pooling.spp.SpatialPyramidPooling import SpatialPyramidPooling
 
 beta = 10
-epochs = 2
+epochs = 1
 
 def custom_objective(y_true, y_pred):
 	error = K.square(y_pred - y_true)
@@ -70,14 +71,14 @@ def create_conv_branch(input_shape):
 					 strides=1, padding='same',
 					 activation='relu'))
 	# replace with SPP if possible
-	model.add(MaxPooling2D(pool_size=(3,3), strides=2))
+	model.add(SpatialPyramidPooling([1,2,3,6,13]))
 	return model
 
 if __name__ == "__main__":
 
 	img_rows, img_cols = 227, 227
 	category_IDs = [1,2,3,4,5] # category IDs from which to pull test and training data
-	model_name = 'midsize_model_2epoch.h5'
+	model_name = 'midsize_model_spp.h5'
 	model = None
 	# load training and testing data:
 	loader = DataLoader(category_IDs, img_rows, img_cols)
@@ -99,7 +100,7 @@ if __name__ == "__main__":
 	#distance = Lambda(euclidean_distance, 
 	#				  output_shape = eucl_dist_output_shape)([processed_a, processed_b])
 	regression = keras.layers.concatenate([processed_a, processed_b])
-	regression = Flatten()(regression) # may not be necessary
+	#regression = Flatten()(regression) # may not be necessary
 	output = Dense(7, kernel_initializer='normal', name='output')(regression)
 	model = Model(inputs=[branch_a, branch_b], outputs=[output])
 
