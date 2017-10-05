@@ -37,16 +37,19 @@ class DataLoader:
 		cwd = os.getcwd() # save current working directory
 		for directory_num in directories:
 			new_images = []
+			
 			os.chdir("/Users/andrew-kramer/Downloads/Cleaned/scan%s" % directory_num) # switch to directory for image files
 			if os.path.isfile("path%s.npy" % directory_num):
-				new_images = np.load("path%s.npy" % directory_num);
+				new_images = np.load("path%s.npy" % directory_num)
 			else:
 				for file in glob.glob("*max.png"): # only loads the 'max' image from each view
 					img = image.load_img(file, target_size=(img_rows, img_cols))
 					img_array = image.img_to_array(img)
+					#print("array", directory_num, img_array.shape)
 					# do some other preprocessing here?
 					new_images.append(img_array)
-				np.save("path%s.npy" % directory_num, image_set);
+				np.save("path%s.npy" % directory_num, new_images);
+			
 			if not np.array(image_set).size:
 				image_set = new_images
 			else:
@@ -101,13 +104,17 @@ class DataLoader:
 		test_data = []
 		for label in train_labels:
 			if label[2] <= 77: # currently can't category IDs above 77
-				mult = categoryIDs.index(label[2])
-				image_tuple = (images[mult * self.num_images_1], images[mult * self.num_images_1])
+				mult = int(categoryIDs.index(label[2]))
+				img1_index = (mult * self.num_images_1) + int(label[0]) - 1
+				img2_index = (mult * self.num_images_1) + int(label[1]) - 1
+				image_tuple = (images[img1_index], images[img2_index])
 				train_data.append(image_tuple)
 		for label in test_labels:
 			if label[2] <= 77: # currently can't category IDs above 77
-				mult = categoryIDs.index(label[2])
-				image_tuple = (images[mult * self.num_images_1], images[mult * self.num_images_1])
+				mult = int(categoryIDs.index(label[2]))
+				img1_index = (mult * self.num_images_1) + int(label[0]) - 1
+				img2_index = (mult * self.num_images_1) + int(label[1]) - 1
+				image_tuple = (images[img1_index], images[img2_index])
 				test_data.append(image_tuple)
 		return np.array(train_data), np.array(test_data)
 

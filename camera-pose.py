@@ -22,7 +22,7 @@ from keras import backend as K
 from dataloader import DataLoader
 
 beta = 10
-epochs = 4
+epochs = 10
 
 def custom_objective(y_true, y_pred):
 	error = K.square(y_pred - y_true)
@@ -76,8 +76,8 @@ def create_conv_branch(input_shape):
 if __name__ == "__main__":
 
 	img_rows, img_cols = 227, 227
-	category_IDs = [1,2,3,4,5] # category IDs from which to pull test and training data
-	model_name = 'midsize_model_4epoch.h5'
+	category_IDs = [1,2,3,4,5,6,7,8,9,10] # category IDs from which to pull test and training data
+	model_name = 'large_model_10epoch.h5'
 	model = None
 	# load training and testing data:
 	loader = DataLoader(category_IDs, img_rows, img_cols)
@@ -121,12 +121,12 @@ if __name__ == "__main__":
 		model.save_weights(model_name)
 		print("model saved as file", model_name)
 
-	pred = model.predict([train_data[:,0], train_data[:,1]])
-	train_trans, train_orient = compute_mean_error(pred, train_labels)
+	#pred = model.predict([train_data[:,0], train_data[:,1]])
+	#train_trans, train_orient = compute_mean_error(pred, train_labels)
 	pred = model.predict([test_data[:,0], test_data[:,1]])
 	test_trans, test_orient = compute_mean_error(pred, test_labels)
 
-	print('* Mean translation error on training set: %0.2f' % (train_trans))
-	print('* Mean orientation error on training set: %0.2f' % (train_orient))
+	#print('* Mean translation error on training set: %0.2f' % (train_trans))
+	#print('* Mean orientation error on training set: %0.2f' % (train_orient))
 	print('*     Mean translation error on test set: %0.2f' % (test_trans))
 	print('*     Mean orientation error on test set: %0.2f' % (test_orient))
