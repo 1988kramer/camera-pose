@@ -23,7 +23,7 @@ from dataloader import DataLoader
 from pooling.spp.SpatialPyramidPooling import SpatialPyramidPooling
 
 beta = 10
-epochs = 4
+epochs = 10
 
 def custom_objective(y_true, y_pred):
 	error = K.square(y_pred - y_true)
@@ -77,9 +77,8 @@ def create_conv_branch(input_shape):
 if __name__ == "__main__":
 
 	img_rows, img_cols = 227, 227
-	category_IDs = [6,7,8,9,10] # category IDs from which to pull test and training data
-	load_name = 'midsize_model_spp_4epoch.h5'
-	save_name = 'large_model_spp_4epoch.h5'
+	category_IDs = [1,2,3,4,5,6,7,8,9,10] # category IDs from which to pull test and training data
+	file_name = 'large_model_spp_10epoch.h5'
 	model = None
 	# load training and testing data:
 	loader = DataLoader(category_IDs, img_rows, img_cols)
@@ -109,9 +108,9 @@ if __name__ == "__main__":
 				  optimizer=keras.optimizers.Adam(lr=.0001, decay=.00001),
 				  metrics=['accuracy'])
 
-	if os.path.isfile(model_name):
-		print("model", load_name, "found")
-			model.load_weights(load_name)
+	if os.path.isfile(file_name):
+		print("model", file_name, "found")
+		model.load_weights(file_name)
 		print("model loaded from file")
 	else:
 		model.fit([train_data[:,0], train_data[:,1]], train_labels,
@@ -119,13 +118,13 @@ if __name__ == "__main__":
 				  epochs = epochs,
 				  validation_split=0.1,
 				  shuffle=True)
-		model.save_weights(save_name)
-		print("model saved as file", save_name)
+		model.save_weights(file_name)
+		print("model saved as file", file_name)
 
-	pred = model.predict([train_data[:,0], train_data[:,1]])
-	train_trans, train_orient = compute_mean_error(pred, train_labels)
-	#pred = model.predict([test_data[:,0], test_data[:,1]])
-	#test_trans, test_orient = compute_mean_error(pred, test_labels)
+	#pred = model.predict([train_data[:,0], train_data[:,1]])
+	#train_trans, train_orient = compute_mean_error(pred, train_labels)
+	pred = model.predict([test_data[:,0], test_data[:,1]])
+	test_trans, test_orient = compute_mean_error(pred, test_labels)
 
 	#print('* Mean translation error on training set: %0.2f' % (train_trans))
 	#print('* Mean orientation error on training set: %0.2f' % (train_orient))
