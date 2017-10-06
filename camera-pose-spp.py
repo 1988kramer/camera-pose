@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
 	img_rows, img_cols = 227, 227
 	category_IDs = list(range(1,25)) # category IDs from which to pull test and training data
-	file_name = 'large_model_spp_10epoch.h5'
+	file_name = 'huge_model_spp_10epoch.h5'
 	model = None
 	# load training and testing data:
 	loader = DataLoader(category_IDs, img_rows, img_cols)
@@ -125,6 +125,8 @@ if __name__ == "__main__":
 	#train_trans, train_orient = compute_mean_error(pred, train_labels)
 	pred = model.predict([test_data[:,0], test_data[:,1]])
 	test_trans, test_orient = compute_mean_error(pred, test_labels)
+	np.savetxt('pred_spp.txt', pred, delimiter=' ')
+	np.savetxt('labels_spp.txt', test_labels, delimiter=' ')
 
 	#print('* Mean translation error on training set: %0.2f' % (train_trans))
 	#print('* Mean orientation error on training set: %0.2f' % (train_orient))
