@@ -76,7 +76,7 @@ def create_conv_branch(input_shape):
 if __name__ == "__main__":
 
 	img_rows, img_cols = 227, 227
-	category_IDs = [1,2,3,4,5,6,7,8,9,10] # category IDs from which to pull test and training data
+	category_IDs = list(range(1,25)) # category IDs from which to pull test and training data
 	model_name = 'large_model_10epoch.h5'
 	model = None
 	# load training and testing data:
@@ -125,6 +125,8 @@ if __name__ == "__main__":
 	#train_trans, train_orient = compute_mean_error(pred, train_labels)
 	pred = model.predict([test_data[:,0], test_data[:,1]])
 	test_trans, test_orient = compute_mean_error(pred, test_labels)
+	np.savetxt('pred.txt', pred, delimiter=' ')
+	np.savetxt('labels.txt', test_labels, delimiter=' ')
 
 	#print('* Mean translation error on training set: %0.2f' % (train_trans))
 	#print('* Mean orientation error on training set: %0.2f' % (train_orient))

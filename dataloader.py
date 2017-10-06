@@ -55,7 +55,7 @@ class DataLoader:
 			else:
 				image_set= np.concatenate((image_set, new_images), 0)
 		os.chdir(cwd) # switch back to previous working directory
-
+		image_set = np.array(image_set)
 		#preprocess input
 		if K.image_data_format() == 'channels_first':
 			image_set = image_set.reshape(image_set.shape[0], 3, img_rows, img_cols)

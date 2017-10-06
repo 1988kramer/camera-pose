@@ -77,7 +77,7 @@ def create_conv_branch(input_shape):
 if __name__ == "__main__":
 
 	img_rows, img_cols = 227, 227
-	category_IDs = [1,2,3,4,5,6,7,8,9,10] # category IDs from which to pull test and training data
+	category_IDs = list(range(1,25)) # category IDs from which to pull test and training data
 	file_name = 'large_model_spp_10epoch.h5'
 	model = None
 	# load training and testing data:
