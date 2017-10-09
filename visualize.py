@@ -31,7 +31,7 @@ class Visualize:
 							(1-(2*(np.square(v[:,5])+np.square(v[:,6])))))
 		return r
 
-	def plot(self, num_samples):
+	def plot(self, i):
 		fig = plt.figure()
 		ax = fig.gca(projection='3d')
 		ax.set_xlim(-1, 1)
@@ -47,41 +47,40 @@ class Visualize:
 		w = [0]
 		c = [1]
 
-		samples = np.random.randint(0, self.groundtruth.shape[0], size=(num_samples))
 		
-		for i in samples:
-			g_roll = self.groundtruth[i, 3]
-			g_pitch = self.groundtruth[i, 4]
-			g_yaw = self.groundtruth[i, 5]
+		
+		
+		g_roll = self.groundtruth[i, 3]
+		g_pitch = self.groundtruth[i, 4]
+		g_yaw = self.groundtruth[i, 5]
 			
-			gi = np.cos(g_yaw) * np.cos(g_pitch) + 1
-			gj = np.sin(g_yaw) * np.cos(g_pitch)
-			gk = np.sin(g_pitch) 
+		gi = np.cos(g_yaw) * np.cos(g_pitch) + 1
+		gj = np.sin(g_yaw) * np.cos(g_pitch)
+		gk = np.sin(g_pitch) 
 		
-			x.append(self.groundtruth[i, 0])
-			y.append(self.groundtruth[i, 1])
-			z.append(self.groundtruth[i, 2])
-			u.append(gi)
-			v.append(gj)
-			w.append(gk)
-			c.append(0.5)
+		x.append(self.groundtruth[i, 0])
+		y.append(self.groundtruth[i, 1])
+		z.append(self.groundtruth[i, 2])
+		u.append(gi)
+		v.append(gj)
+		w.append(gk)
+		c.append(0.5)
 
-		for i in samples:
-			p_roll = self.prediction[i, 3]
-			p_pitch = self.prediction[i, 4]
-			p_yaw = self.prediction[i, 5]
+		p_roll = self.prediction[i, 3]
+		p_pitch = self.prediction[i, 4]
+		p_yaw = self.prediction[i, 5]
 
-			pi = np.cos(p_yaw) * np.cos(p_pitch) + 1
-			pj = np.sin(p_yaw) * np.cos(p_pitch)
-			pk = np.sin(p_pitch) 
+		pi = np.cos(p_yaw) * np.cos(p_pitch) + 1
+		pj = np.sin(p_yaw) * np.cos(p_pitch)
+		pk = np.sin(p_pitch) 
 
-			x.append(self.prediction[i, 0])
-			y.append(self.prediction[i, 1])
-			z.append(self.prediction[i, 2])
-			u.append(pi)
-			v.append(pj)
-			w.append(pk)
-			c.append(0.1)
+		x.append(self.prediction[i, 0])
+		y.append(self.prediction[i, 1])
+		z.append(self.prediction[i, 2])
+		u.append(pi)
+		v.append(pj)
+		w.append(pk)
+		c.append(0.1)
 		
 		cmap = plt.get_cmap()
 		ax.quiver(x, y, z, u, v, w, color=cmap(c), length=.5, normalize=True)

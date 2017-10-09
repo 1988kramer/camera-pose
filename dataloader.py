@@ -93,6 +93,7 @@ class DataLoader:
 		train_index = int(0.8*num_labels)
 		train_labels = labels[:train_index,:]
 		test_labels = labels[train_index:,:]
+		np.savetxt('index_spp.txt', train_labels, delimiter=' ')
 		return train_labels, test_labels
 
 	# accepts arrays of training and testing labels, 
